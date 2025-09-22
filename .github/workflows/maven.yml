@@ -39,4 +39,40 @@ jobs:
         name: jar file
         path: aula-ci/target/*.jar    
 
+  test:
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    - name: Run Unit Tests
+      run: |
+        cd aula-ci
+        mvn clean test site
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: test report
+        path: aula-ci/target/site/  
+
+  notification:
+
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
     
+    - name: Send notification
+      run: sh scripts/sendEmail.sh
+           
